@@ -1,0 +1,53 @@
+<?php
+/** @var $block \Magento\Swatches\Block\Product\Renderer\Listing\Configurable */
+
+/** @var \Magento\Catalog\Model\Product $product */
+$product = $block->getProduct();
+
+/** @var \Magento\Framework\Json\Helper\Data $jsonHelper */
+$jsonHelper = $this->helper('\Magento\Framework\Json\Helper\Data');
+
+$minPrice = $product->getMinimalPrice();
+$maxPrice = $product->getMaxPrice();
+
+$priceRange = [];
+
+if ($minPrice != $maxPrice) {
+    $priceRange['priceRange'] = [
+        'amount' => $minPrice . ' - ' . $maxPrice
+    ];
+}
+?>
+<div class="swatch-opt-<?= /* @escapeNotVerified */ $block->getProduct()->getId() ?>"></div>
+<script>
+    require([
+        'jquery',
+        'jquery/ui',
+        'Magento_Swatches/js/swatch-renderer',
+        'Magento_Swatches/js/catalog-add-to-cart',
+        'priceBox'
+    ], function ($) {
+        var jsonConfig = <?= /* @escapeNotVerified */ $block->getJsonConfig() ?>;
+
+        $('.swatch-opt-<?= /* @escapeNotVerified */ $block->getProduct()->getId() ?>').SwatchRenderer({
+            selectorProduct: '.product-item-details',
+            onlySwatches: true,
+            enableControlLabel: false,
+            numberToShow: <?= /* @escapeNotVerified */ $block->getNumberSwatchesPerProduct() ?>,
+            jsonConfig: jsonConfig,
+            jsonSwatchConfig: <?= /* @escapeNotVerified */ $block->getJsonSwatchConfig() ?>,
+            mediaCallback: '<?= /* @escapeNotVerified */ $block->getMediaCallback() ?>'
+        });
+
+        var dataPriceBoxSelector = '[data-role=priceBox]',
+            dataProductIdSelector = '[data-product-id=<?= $block->escapeHtml($block->getProduct()->getId()) ?>]',
+            priceBoxes = $(dataPriceBoxSelector + dataProductIdSelector);
+
+        priceBoxes.priceBox({
+            'priceConfig': {
+                priceFormat: jsonConfig.priceFormat,
+                prices: <?= $priceRange ? $jsonHelper->jsonEncode($priceRange) : 'jsonConfig.prices'  ?>
+            }
+        });
+    });
+</script>
