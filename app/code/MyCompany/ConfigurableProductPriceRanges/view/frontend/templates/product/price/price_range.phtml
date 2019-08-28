@@ -4,18 +4,20 @@ $idSuffix = $block->getIdSuffix() ? $block->getIdSuffix() : '';
 $schema = ($block->getZone() == 'item_view') ? true : false;
 
 $saleableProduct = $block->getSaleableItem();
+$regularPrice = $saleableProduct->getPriceInfo()->getPrice('regular_price');
+
+$minimumPrice = $regularPrice->getMinRegularAmount()->getValue();
+$maximumPrice = $regularPrice->getMaxRegularAmount()->getValue();
+
 $finalPriceModel = $block->getPriceType('final_price');
 
-$minimumPrice = ($block->hasSpecialPrice()) ? $finalPriceModel->getAmount()->getValue() : $saleableProduct->getMinPrice();
-$maximumPrice = $saleableProduct->getMaxPrice();
-
 $renderAmount = $block->renderAmount($finalPriceModel->getAmount(), [
-    'price_id'          => $block->getPriceId('product-price-' . $idSuffix),
-    'price_type'        => 'finalPrice',
-    'include_container' => true,
-    'schema'            => $schema,
-    'min_price'         => $minimumPrice,
-    'max_price'         => $maximumPrice,
-]);
+                    'price_id'          => $block->getPriceId('product-price-' . $idSuffix),
+                    'price_type'        => 'finalPrice',
+                    'include_container' => true,
+                    'schema'            => $schema,
+                    'min_price'         => $minimumPrice,
+                    'max_price'         => $maximumPrice,
+                ]);
 echo $renderAmount
 ?>
